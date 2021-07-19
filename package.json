@@ -1,0 +1,41 @@
+{
+  "name": "bailey-2",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "lint": "eslint ./src/ --ignore-path .gitignore --ignore-pattern internals/scripts",
+    "lint:fix": "node lint --fix",
+    "lint:watch": "node lint --watch"
+  },
+  "apidoc": {
+    "title": "Custom apiDoc browser title",
+    "url": "https://api.github.com/v1"
+  },
+  "dependencies": {
+    "@adiwajshing/baileys": "^3.5.1",
+    "@chatwoot/node": "github:hasanbasri1993/node",
+    "@google-cloud/dialogflow": "^3.3.0",
+    "async": "^3.2.0",
+    "axios": "^0.21.0",
+    "body-parser": "^1.18.3",
+    "bull": "^3.22.6",
+    "connect-timeout": "^1.9.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "debug": "^2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "firebase": "^8.2.0",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "mime-types": "^2.1.30",
+    "morgan": "~1.9.1",
+    "qr-image": "^3.2.0",
+    "xhr2": "^0.2.0"
+  },
+  "devDependencies": {
+    "apidoc": "^0.28.1",
+    "eslint": "^7.29.0"
+  }
+}

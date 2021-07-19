@@ -1,0 +1,12 @@
+.DS_Store
+.env
+
+node_modules/
+.idea/
+tmp/
+
+package-lock.json
+auth_info.json
+info_contacts.json
+
+google.json
