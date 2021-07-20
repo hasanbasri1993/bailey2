@@ -62,17 +62,17 @@ const placeSendMessageFileOrder = (data) => {
 
 
 chatwootWorker.process(job => {
-    if (job.data.order === "prepareSendMessage") {
-        prepareSendMessage(job.data.number, job.data.content).then(r => {
-            if (r != null) job.progress(100);
-        })
-
-    } else {
-        createContact(job.data.number, job.data.name).then(r => {
-            if (r != null) job.progress(100);
-        })
-        job.progress(100);
-    }
+    // if (job.data.order === "prepareSendMessage") {
+    //     prepareSendMessage(job.data.number, job.data.content).then(r => {
+    //         if (r != null) job.progress(100);
+    //     })
+    //
+    // } else {
+    //     createContact(job.data.number, job.data.name).then(r => {
+    //         if (r != null) job.progress(100);
+    //     })
+    //     job.progress(100);
+    // }
 });
 
 sendWebhook.process(job => {
@@ -87,11 +87,12 @@ sendWebhook.process(job => {
         });
 });
 
-sendMessage.process(job => {
+sendMessage.process(async job => {
     try {
-
-        conn.sendMessage(job.data.chatId, job.data.body, job.data.type).then(function (processData) {
+        const zapance = await connswa[job.data.instance].session
+        const sendMsg = zapance.sendMessage(job.data.chatId, job.data.body, job.data.type).then(function (processData) {
             console.log(`🍳 Success ${JSON.stringify(processData)}  sendMessage ${job.data.chatId} jobId ${job.id}`)
+            console.log(sendMsg)
             job.progress(100);
         });
     } catch (e) {
@@ -104,10 +105,12 @@ sendMessageFile.process(job => {
         mimetype: job.data.mimetype,
         caption: job.data.caption
     }
-    getImage(job.data.body, function (err, data) {
+    getImage(job.data.body, async function (err, data) {
         console.log(`🍳 Preparing ${job.data.chatId} sendMessageFile`);
-        conn.sendMessage(job.data.chatId, data, job.data.type, options).then(function (processData) {
+        const zapance = await connswa[job.data.instance].session
+        const sendMsg = zapance.sendMessage(job.data.chatId, data, job.data.type, options).then(function (processData) {
             console.log(`🍳 Success ${JSON.stringify(processData)} sendMessageFile  ${job.data.chatId}`)
+            console.log(sendMsg)
             job.progress(100);
         });
     });

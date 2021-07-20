@@ -9,7 +9,7 @@ const projectId = 'newagent-dtewlr'
  */
 process.env.GOOGLE_APPLICATION_CREDENTIALS = './google.json';
 
-const runDialog = async (text = '', chatId = '') => {
+const runDialog = async (text = '', chatId = '', indexInstance = 0) => {
     // A unique identifier for the given session
     const sessionId = uuid.v4();
 
@@ -40,10 +40,14 @@ const runDialog = async (text = '', chatId = '') => {
         console.log(`  Intent: ${result.intent.displayName}`);
 
         let order = {
+            "instance": indexInstance,
             "chatId": chatId,
             'body': result.fulfillmentText,
             "type": MessageType.text
         }
+
+        console.log("oder runDialog")
+        console.log(order)
         if (result.fulfillmentText !== "")
             placeSendMessageOrder(order)
                 .then((job) =>

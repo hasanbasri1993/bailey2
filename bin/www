@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-const app = require('../src/app');
+const app = require('../src/app').app;
 const debug = require('debug')('bailey-2:server');
 const http = require('http');
 
@@ -20,7 +20,9 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+//const server = http.createServer(app);
+//https://stackoverflow.com/questions/40362258/package-express-ws-doesnt-let-clients-connect?answertab=active#tab-top
+const server = require('../src/app').server;
 
 /**
  * Listen on provided port, on all network interfaces.
