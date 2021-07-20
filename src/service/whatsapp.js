@@ -5,6 +5,7 @@ let {
     waChatKey,
 } = require("@adiwajshing/baileys");
 const fs = require('fs');
+const {updateInstance} = require("./db");
 const {getActiveInstance} = require("./db");
 const {placeSendWebhookOrder} = require("./worker");
 const {runDialog} = require("./dialog");
@@ -14,6 +15,7 @@ const {creteUsersGroup} = require("./firebase");
 const {newMessageChat} = require("./firebase");
 const {presence} = require("./firebase");
 const myLog = true
+const qr1 = require('qr-image');
 
 global.conn = new WAConnection()
 global.connswa = []
@@ -24,14 +26,11 @@ const runWhatsappInstance = async () => {
     getActiveInstance(async function (result) {
         for (let n = 0; n < result.length; n++) {
             let buff = Buffer.from(result[n].session, 'base64');
-            fs.writeFileSync(`./${result[n].name}.json`, buff) // save this info to a file
-           // const session = mkZap(`./${result[n].name}.json`, result[n])
-            //connswa.push({name: result[n].id, session})
-            instanceData.push(result[n])
+            fs.writeFileSync(`./${result[n].id}.json`, buff) // save this info to a file
+            const session = mkZap(`./${result[n].id}.json`, result[n])
+            connswa.push({name: result[n].id, session})
+            //instanceData.push(result[n])
         }
-        console.log("runWhastappInstance")
-        console.log(connswa)
-        console.log("===================")
     });
 }
 
@@ -125,7 +124,32 @@ const mkZap = async (credential, data) => {
             }
         })
     }
+    else {
+        conn.on('qr', qr => {
+            const qr_svg = qr1.imageSync(qr, {type: 'png'});
+            const qr_str = "data:image/png;base64," + qr_svg.toString('base64');
+        })
+
+        conn.on('open', () => {
+            const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+            const str = JSON.stringify(authInfo, null, '\t');
+            // create a buffer
+            const buff = Buffer.from(str, 'utf-8');
+            // decode buffer as Base64
+            const base64 = buff.toString('base64');
+            // save this info to a file
+            fs.writeFileSync(`./${data.id}.json`,  JSON.stringify(authInfo, null, '\t'))
+            const session = mkZap(`./${data.id}.json`, data)
+            connswa.push({name: data.id, session})
+            updateInstance([{id: data.id, session: base64}], function (result) {
+                console.log(result)
+            })
+        })
+    }
     await conn.connect()
+    console.log("runWhastappInstance")
+    console.log(connswa)
+    console.log("===================")
     return conn
 }
 
@@ -313,6 +337,7 @@ async function checkIsOnWhatsApp(processData) {
 
 module.exports = {
     //instance1,
+    mkZap,
     BODY_CHECK,
     checkIsOnWhatsApp,
     getFilename,

@@ -1,9 +1,15 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 
+const fs = require('fs');
 const {MessageType} = require("@adiwajshing/baileys");
 const mime = require("mime-types");
 const timeout = require("connect-timeout");
+const {mkZap} = require("../service/whatsapp");
+const {createNewInstance} = require("../service/db");
+const {getInstance} = require("../service/db");
+const {getActiveInstance} = require("../service/db");
+const {toggleInstance} = require("../service/db");
 const {instance1} = require("../service/whatsapp");
 const {getFilename} = require("../service/whatsapp");
 const {placeSendMessageFileOrder} = require("../service/worker");
@@ -17,8 +23,15 @@ router.use(bodyParser.json({type: 'application/*+json'}))
 
 /* GET home page. */
 router.get('/', function (req, res) {
-    console.log(instanceData)
-    res.render('index', {title: 'Express', data: instanceData});
+    getInstance(async function (result) {
+        instanceData = []
+        for (let n = 0; n < result.length; n++) {
+            instanceData.push(result[n])
+        }
+        res.render('index', {title: 'Express', data: instanceData});
+    });
+
+
 });
 
 
@@ -39,6 +52,56 @@ router.get('/:instance/readInstance', async function (req, res) {
                 });
         }
     }
+})
+
+
+/* GET home page. */
+router.get('/:instance/toggle/:status', async function (req, res) {
+    let index = connswa.findIndex(x => x.name === parseInt(req.params['instance']))
+    let indexIns = instanceData.findIndex(x => x.id === parseInt(req.params['instance']))
+    toggleInstance(parseInt(req.params.instance), function (r) {
+        console.log(r)
+    })
+
+    console.log("instanceData[indexIns]")
+    console.log(instanceData[indexIns])
+    if (req.params.status === "0") {
+        if (instanceData[indexIns].session === null)
+            await mkZap(false, instanceData[indexIns])
+        else {
+            let buff = Buffer.from(instanceData[indexIns].session, 'base64');
+            fs.writeFileSync(`./${instanceData[indexIns].id}.json`, buff) // save this info to a file
+            await mkZap(`./${instanceData[indexIns].id}.json`, instanceData[indexIns])
+
+        }
+    } else {
+        const zapance = await connswa[index].session
+        const close = await zapance.close()
+        console.log(close)
+    }
+
+    res.redirect('/')
+
+})
+
+/* GET home page. */
+router.get('/add', async function (req, res) {
+    res.render('add_instance', {title: 'Express', data: instanceData})
+})
+
+
+/* GET home page. */
+router.post('/add_instance', async function (req, res) {
+    let body = req.body;
+    let data = {phone: body.phone, name: body.name, webhook: body.webhook}
+    createNewInstance(data, function (result) {
+        console.log(result)
+        if (!result)
+            res.render('add_instance', {title: 'Phone sudah sipakei', data: instanceData})
+        else
+            res.redirect('/')
+    })
+
 })
 
 

@@ -25,7 +25,7 @@
                         <td><%= user.name %></td>
                         <td><%= user.webhook %></td>
                         <td><%= user.phone %></td>
-                        <td><a href="/<%= user.id %>/toggle">
+                        <td><a href="/<%= user.id %>/toggle/<%= user.status %>">
                                 <% if (user.status === "1") { %>
                                     <h2>Active</h2>
                                 <% } else { %>
