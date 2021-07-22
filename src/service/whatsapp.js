@@ -29,7 +29,6 @@ const runWhatsappInstance = async () => {
             fs.writeFileSync(`./${result[n].id}.json`, buff) // save this info to a file
             const session = mkZap(`./${result[n].id}.json`, result[n])
             connswa.push({name: result[n].id, session})
-            //instanceData.push(result[n])
         }
     });
 }
@@ -161,7 +160,7 @@ function getFilename(url) {
 
 function runDialogs(data, instanceId) {
     let index = connswa.findIndex(x => x.name === parseInt(instanceId))
-    console.log("oder runDialogs")
+    console.log("order runDialogs")
     console.log(instanceId)
     console.log(index)
     if (!data['key'].fromMe) runDialog(data['message'].conversation, data['key'].remoteJid, index).then()

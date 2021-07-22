@@ -8,9 +8,7 @@ const timeout = require("connect-timeout");
 const {mkZap} = require("../service/whatsapp");
 const {createNewInstance} = require("../service/db");
 const {getInstance} = require("../service/db");
-const {getActiveInstance} = require("../service/db");
 const {toggleInstance} = require("../service/db");
-const {instance1} = require("../service/whatsapp");
 const {getFilename} = require("../service/whatsapp");
 const {placeSendMessageFileOrder} = require("../service/worker");
 const {checkIsOnWhatsApp} = require("../service/whatsapp");
@@ -71,15 +69,16 @@ router.get('/:instance/toggle/:status', async function (req, res) {
         else {
             let buff = Buffer.from(instanceData[indexIns].session, 'base64');
             fs.writeFileSync(`./${instanceData[indexIns].id}.json`, buff) // save this info to a file
-            await mkZap(`./${instanceData[indexIns].id}.json`, instanceData[indexIns])
-
+            let session = await mkZap(`./${instanceData[indexIns].id}.json`, instanceData[indexIns])
+            connswa.push({name: req.params['instance'], session})
         }
     } else {
         const zapance = await connswa[index].session
-        const close = await zapance.close()
-        console.log(close)
+        zapance.close()
+        connswa.splice(index, 1)
+        instanceData.splice(indexIns, 1)
     }
-
+    console.log(connswa)
     res.redirect('/')
 
 })
